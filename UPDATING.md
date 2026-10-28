@@ -1,0 +1,16 @@
+# Updating from upstream pstack
+
+[UPSTREAM.json](UPSTREAM.json) records the reviewed snapshot. Do not merge the upstream monorepo into this repository.
+
+1. Begin on a new branch with a clean working tree. Add `upstream` as `https://github.com/cursor/plugins.git` if needed.
+2. Run `scripts/check-upstream.sh`. It fetches upstream main and reports pstack changes since the pin without changing the pack or advancing the pin.
+3. Run `scripts/sync-upstream.sh [target-ref]`. For every upstream path it merges ours (native port), base (pinned upstream), and theirs (target upstream) with `git merge-file`. Additions copy in and deletions remove their counterparts. Renamed helpers map to their native destinations. Manifest and harness changes are printed for manual review. The mechanical codemod runs afterward.
+4. Resolve all conflicts and translate new host instructions using [PORTING.md](PORTING.md). Add a table row before porting a new tool, field, path, or unsupported feature. Preserve native runtime role targets, explicit schedule cleanup, and parent-only PR watches. Never restore per-spawn speed selection.
+5. Manually reconcile upstream manifest changes into `plugins/pstack/plugin.json`. Set its version to `<upstream-version>-t3code.<n>`. Update `UPSTREAM.json` to the reviewed commit and version, then run `node scripts/record-upstream.mjs` to regenerate the exact file inventory and pack-local pin. New replacements need an entry with a destination and reason in `scripts/replaced-upstream.json` and a corresponding sync path rule.
+6. Keep step 5's first default fence in `setup-pstack/SKILL.md` parseable by T3's current role parser. If upstream changes role labels or defaults, review the server impact and update `scripts/role-defaults.json` deliberately. Remove upstream speed suffixes; setup resolves advertised provider instances and options before writing the actual models file.
+7. Run `scripts/test.sh`. Review semantic changes the token gate cannot prove, especially model fallback, thread scope, webhook contracts, worktree bases, and unsupported steps. Exact-line allowlist entries are only for attribution or protocol identifiers; stale entries fail. Optional statechart runtime skips must remain visible in test output.
+8. Commit the reviewed pin, inventory, manifest, and native changes together. After T3 adopts that snapshot, try changed skills in a fresh pstack invocation. This repo does not install or update a harness plugin.
+
+A sync never touches the custom skills `automate-maintainer` and `automate-team`, including their reference files. Explicit sync guards protect them even if upstream later adds those names. Keep their mentions in README.md, `plugins/pstack/docs/guide/09-make-it-yours.md`, and `plugins/pstack/skills/poteto-help/SKILL.md` when those files merge. Codex launcher metadata is not a T3 persona and is not copied.
+
+The four initial replacement decisions are recorded in `scripts/replaced-upstream.json`: the duplicate host manifest, the harness adapter, the renamed review-bot rubric, and the renamed dependency installer. Every other upstream path must remain present or gain an explicit reviewed replacement. The parity check runs offline against the committed inventory; recording a new inventory requires the actual pinned Git objects fetched by the sync.
