@@ -1,0 +1,6 @@
+{
+  ".cursor-plugin/plugin.json": { "path": "plugin.json", "reason": "T3 reads one root plugin manifest; the duplicate host manifest is unnecessary." },
+  "docs/harness/claude-code.md": { "path": "README.md", "reason": "The native pack has no harness translation layer. Runtime requirements live in the pack README and PORTING.md." },
+  "skills/poteto-mode/references/bugbot-triage.md": { "path": "skills/poteto-mode/references/review-bot-triage.md", "reason": "Review-bot findings use the same evidence rubric regardless of bot vendor." },
+  "skills/poteto-mode/scripts/bootstrap.ts": { "path": "skills/poteto-mode/scripts/install-dependencies.ts", "reason": "The helper installs dependencies in the writable pack; it does not install a host plugin." }
+}

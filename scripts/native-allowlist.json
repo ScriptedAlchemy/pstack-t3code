@@ -1,0 +1,92 @@
+[
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.ts",
+    "text": "function isBugbot(comment: T.ReviewComment | null): boolean {",
+    "reason": "GitHub bot identity or API field used to classify existing review threads; preserved upstream protocol behavior."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.ts",
+    "text": "    (author === \"cursor\" &&",
+    "reason": "GitHub bot identity or API field used to classify existing review threads; preserved upstream protocol behavior."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.ts",
+    "text": "  const cursor = optionalString(",
+    "reason": "GraphQL pagination cursor, unrelated to the editor host."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.ts",
+    "text": "  return { threads, endCursor: page.hasNextPage && cursor ? cursor : null };",
+    "reason": "GraphQL pagination cursor, unrelated to the editor host."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.ts",
+    "text": "    if (!isBugbot(thread.firstComment)) continue;",
+    "reason": "GitHub bot identity or API field used to classify existing review threads; preserved upstream protocol behavior."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.ts",
+    "text": "      isBugbot: isBugbot(firstComment),",
+    "reason": "GitHub bot identity or API field used to classify existing review threads; preserved upstream protocol behavior."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.ts",
+    "text": "    const cursor = optionalString(",
+    "reason": "GraphQL pagination cursor, unrelated to the editor host."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.ts",
+    "text": "    return { checks, endCursor: page.hasNextPage && cursor ? cursor : null };",
+    "reason": "GraphQL pagination cursor, unrelated to the editor host."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.test.ts",
+    "text": "it(\"annotates Bugbot threads with distinct review-pass counts\", () => {",
+    "reason": "GitHub bot identity or API field used to classify existing review threads; preserved upstream protocol behavior."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.test.ts",
+    "text": "                      author: { login: \"cursor\" },",
+    "reason": "GitHub bot identity or API field used to classify existing review threads; preserved upstream protocol behavior."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.test.ts",
+    "text": "  expect(threads.map((thread) => thread.isBugbot)).toEqual([true, true]);",
+    "reason": "GitHub bot identity or API field used to classify existing review threads; preserved upstream protocol behavior."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.test.ts",
+    "text": "  it(\"keeps walking pages until the cursor is exhausted\", async () => {",
+    "reason": "GraphQL pagination cursor, unrelated to the editor host."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.test.ts",
+    "text": "  it(\"stops after a single page when the cursor is exhausted\", async () => {",
+    "reason": "GraphQL pagination cursor, unrelated to the editor host."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/github.test.ts",
+    "text": "  it(\"counts Bugbot review passes across every page\", async () => {",
+    "reason": "GitHub bot identity or API field used to classify existing review threads; preserved upstream protocol behavior."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/types.ts",
+    "text": "  readonly isBugbot: boolean;",
+    "reason": "GitHub bot identity or API field used to classify existing review threads; preserved upstream protocol behavior."
+  },
+  {
+    "path": "skills/poteto-mode/scripts/watch-pr/render.ts",
+    "text": "    `isBugBot=${thread.isBugbot}`,",
+    "reason": "GitHub bot identity or API field used to classify existing review threads; preserved upstream protocol behavior."
+  },
+  {
+    "path": "README.md",
+    "text": "A native T3 Code port of [Lauren Tan's pstack](https://github.com/cursor/plugins/tree/99b609a72323b70204eab407c622f436e858e112/pstack), pinned to version 0.15.32. Skills, playbooks, principles, and agent personas help you write less, higher quality code with rigorous verification and independent perspectives.",
+    "reason": "Attribution and link to Lauren Tan's pinned upstream source."
+  },
+  {
+    "path": "UPSTREAM.json",
+    "text": "  \"repository\": \"https://github.com/cursor/plugins.git\",",
+    "reason": "Pinned upstream source attribution and provenance."
+  }
+]
