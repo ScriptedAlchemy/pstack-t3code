@@ -2,7 +2,7 @@
 
 A native T3 Code port of [Lauren Tan's pstack](https://github.com/cursor/plugins/tree/99b609a72323b70204eab407c622f436e858e112/pstack): skills, playbooks, principles, and agent personas, plus the custom **automate-maintainer** and **automate-team** skills.
 
-Pinned upstream version **0.15.32**, commit `99b609a72323b70204eab407c622f436e858e112`. Native manifest version **0.15.32-t3code.1**. The pack contains all 58 upstream skills plus the two custom skills.
+Pinned upstream version **0.15.32**, commit `99b609a72323b70204eab407c622f436e858e112`. Native manifest version **0.15.32-t3code.2**. The pack contains all 58 upstream skills plus the two custom skills.
 
 ## Use in T3 Code
 

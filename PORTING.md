@@ -47,9 +47,9 @@ Role targets arrive pre-resolved in the `<t3_pstack>` block that T3 appends to t
 | `claude-<family>-<version>-<effort>[-fast]`, such as `claude-opus-5-5-xhigh` | Use the role's exact resolved target. |
 | A `grok-*`, `gpt-*`, or other non-Claude slug | Use the role's exact resolved target. |
 | `auto` or `inherit-parent` | T3 resolves these to `inherit`; omit `target`. |
-| A panel or model pool | Keep every resolved seat, including `inherit`. A panel spawns one child per seat; a pool selects as the skill directs. |
+| A panel or model pool | Arena runners, architect runners, and interrogate reviewers spawn one child per seat, including fallbacks. Every other role picks one seat per spawn and spreads simultaneous children across seats. Explicit inherit aliases remain pool members. |
 | A model family | The maker in the resolved model id, not the provider instance. For an `inherit` seat, use `inheritedModel` from `orchestrator_capabilities`. |
-| `Task` rejects a slug | Report the rejected target. Do not substitute another provider, model, or option. |
+| `Task` rejects a slug | Report the rejected target. For a pool, try the next resolved seat without changing its options; never invent a target. |
 
 Repeat the block's fallback notes in your reply. Compare each spawn result's `providerInstanceId`, `model`, and `options` with the requested target; report a mismatch. If the block or a required role is missing, say so and stop that spawn. Do not reconstruct it from defaults.
 
@@ -62,9 +62,9 @@ Repeat the block's fallback notes in your reply. Compare each spawn result's `pr
 - Grammar. Write `role: value`. A value is `inherit-parent`, `auto`, or comma-separated entries, each `<instanceId>/<model> <id>=<value> ...`. Split the instance and model at the first `/`; model ids may contain more slashes. `true` and `false` are booleans. `#` lines are comments; preserve the `# budget:` line. Panel alias entries still count as seats.
 - Defaults. Use the 17 role labels and values in step 5. Match `claude-*` to an enabled `claudeAgent` instance, `gpt-*` to `codex`, `grok-*` to `grok`, and `composer-*` or `cursor-grok-*` to `cursor`, offering the model. A missing family needs a choice; propose an available different family for mixed panels. Do not invent a model.
 - Effort. Find the select option whose advertised `values` contain at least two of `low`, `medium`, `high`, `xhigh`, `max`; use its advertised `id`. This also covers Pi's `thinking` and OpenCode's `variant`. The ladder is `max` > `xhigh` > `high` > `medium` > `low`.
-- Budget. Keep step 3's four labels. `unlimited`, `large`, `medium`, and `small` target `max`, `xhigh`, `high`, and `medium`. Set each real entry, including panel entries, to that value or the highest advertised ladder value below it; with none, mark it as needing a choice. Never select off-ladder values such as `ultra`, `ultrathink`, `none`, or `minimal` under a budget. Aliases, models without an effort option, and explicitly chosen off-ladder settings stay unchanged.
+- Budget. Keep step 3's four labels. `unlimited`, `large`, `medium`, and `small` target `max`, `xhigh`, `high`, and `medium`. Set each real entry, in pools and panels, to that value or the highest advertised ladder value below it; with none, mark it as needing a choice. Never select off-ladder values such as `ultra`, `ultrathink`, `none`, or `minimal` under a budget. Aliases, models without an effort option, and explicitly chosen off-ladder settings stay unchanged.
 - Speed. Drop upstream per-spawn speed selection and every `-fast` suffix. Never choose or write `fastMode`, `serviceTier`, or another latency/priority option unless the user explicitly selects it. A budget change preserves an explicitly selected non-effort option. A skill run copies resolved targets exactly; it never changes their options.
-- Show and confirm. Offer detected models plus `inherit-parent` and `auto`. Show all 17 roles, panel sizes, and any unavailable instances. Confirm choices as the skill directs.
+- Show and confirm. Offer detected models plus `inherit-parent` and `auto`. Offer several entries for every role from any detected instance, and mixed code pools when multiple families are available. Show all 17 roles, panel sizes, and any unavailable instances. Confirm choices as the skill directs.
 - Validate. Every concrete instance, model, option id, and value must appear in this run's catalog. Aliases always pass.
 - Write. Write `<models>` with no frontmatter: comment lines, `# budget:`, then one line per role. Write only options the user chose; T3 completes omitted options from the provider's current defaults. Overwrite the whole file. Never put role lines in `AGENTS.md`, `CLAUDE.md`, or a harness rule folder.
 - Confirm. Say the file applies to the next pstack run on this environment. Another environment needs its own setup because its provider instances differ.
@@ -124,8 +124,9 @@ These rows extend or deliberately refine the runtime translation above.
 
 | Source or reference-port behavior | Native port decision and reason |
 | --- | --- |
+| Model pools | Any role accepts several models across provider instances. Panels run every seat; other roles choose the best fit per spawn, spread waves across seats, and try the next exact seat after a rejection. Arena cross-judges still prefer a different family. Explicit inherit aliases are valid pool members; unavailable fallbacks only preserve panel size. Setup offers mixed code pools when multiple families are available. |
 | Per-spawn speed selection and setup's `-fast` conversion | Drop all speed heuristics and suffixes. Write priority/latency options only after an explicit user choice. This is the requested port policy; the runtime adapter previously enabled priority for fast defaults. |
-| `.cursor-plugin/plugin.json` duplicates `plugin.json` | Keep only `plugins/pstack/plugin.json`, version `0.15.32-t3code.1`. T3's sync reads the root manifest, so there is no host marketplace manifest. |
+| `.cursor-plugin/plugin.json` duplicates `plugin.json` | Keep only `plugins/pstack/plugin.json`, version `0.15.32-t3code.2`. T3's sync reads the root manifest, so there is no host marketplace manifest. |
 | `docs/harness/claude-code.md` | Replace with the native pack README and this maintainer translation table. No skill reads a harness adapter first. |
 | `bootstrap.ts` helper | Rename to `install-dependencies.ts`, including extensionless launcher imports. It installs helper dependencies in the writable pack; its name no longer implies host setup. |
 | `bugbot-triage.md` | Rename to `review-bot-triage.md` and use vendor-neutral review prose. Preserve real bot logins and API fields inside the GitHub reader so existing review threads still classify correctly. |

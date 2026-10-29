@@ -43,13 +43,16 @@ test('allowlist exceptions require an exact path and full line and cannot go sta
   assert.match(gate().stderr, /stale allowlist/);
 }));
 test('codemod applies mechanical translations and is idempotent', () => fixture(({ root, skill, set }) => {
-  set('Use /demo with `Task`, AskQuestion, `run_in_background: true`, and `environment: "cloud"`.');
+  set('Use /demo with `Task`, AskQuestion, `run_in_background: true`, and `environment: "cloud"`.\nUse `delegate_task` for every spawn. Old rules. Cancel replaced or unneeded work with `task_cancel`.');
   execFileSync(process.execPath, [join(scripts, 'codemod.mjs'), root]);
   const result = readFileSync(skill, 'utf8');
   assert.match(result, /\$pstack:demo/);
   assert.match(result, /`delegate_task`/);
   assert.match(result, /mode: "async"/);
   assert.match(result, /isolation: "worktree"/);
+  assert.match(result, /panels: one child per seat, including fallbacks/);
+  assert.match(result, /Every other role is a pool/);
+  assert.match(result, /If a pool spawn is rejected, report it and try the next seat/);
   const second = execFileSync(process.execPath, [join(scripts, 'codemod.mjs'), root], { encoding: 'utf8' });
   assert.match(second, /0 files changed/);
   assert.equal(readFileSync(skill, 'utf8'), result);

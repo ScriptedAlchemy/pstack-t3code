@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 const root = process.argv[2] ? join(process.argv[2], 'plugins', 'pstack') : join(dirname(fileURLToPath(import.meta.url)), '..', 'plugins', 'pstack');
 const walk = dir => readdirSync(dir).flatMap(name => name === 'node_modules' || name === '.DS_Store' ? [] : statSync(join(dir, name)).isDirectory() ? walk(join(dir, name)) : [join(dir, name)]);
 const skills = readdirSync(join(root, 'skills')).filter(name => existsSync(join(root, 'skills', name, 'SKILL.md')));
+const spawnPreamble = "Use `delegate_task` for every spawn. Arena runners, architect runners, and interrogate reviewers are panels: one child per seat, including fallbacks. Every other role is a pool: pick the seat whose model best fits the job; spread same-role children in a wave across seats. Arena cross-judges prefer a different model family. Copy the chosen target from `<t3_pstack>` exactly, including all options; `inherit` means the parent model and omits `target`. If a pool spawn is rejected, report it and try the next seat; never invent targets or change options. Repeat fallback notes and report provider, model, or option mismatches. If a required role is missing, stop that spawn. Call `orchestrator_capabilities` once before the first delegation. Start each brief with the absolute `<pstack>` and `<models>` paths; include the relevant resolved role lines when children will delegate. Retain every `taskId`. With `mode: \"async\"`, spawn the wave and end the turn; completion wakes the parent. Do not poll children. Use `mode: \"wait\"` only when this turn needs the result; a wait timeout does not cancel the child. Cancel replaced or unneeded work with `task_cancel`.";
 const edits = [
   [/bootstrap\.ts/g, 'install-dependencies.ts'],
   [/bugbot-triage\.md/g, 'review-bot-triage.md'],
@@ -30,11 +31,12 @@ const edits = [
 ];
 let count = 0;
 for (const path of walk(root).filter(p => !/\.(png|jpe?g|gif|ico|woff2?|pdf)$/.test(p))) {
-  if (/^skills\/automate-(?:maintainer|team)\//.test(relative(root, path))) continue;
   const before = readFileSync(path, 'utf8');
-  let after = edits.reduce((s, [pattern, replacement]) => s.replace(pattern, replacement), before);
+  const preambleUpdated = before.replace(/Use `delegate_task` for every spawn\.[^\n]*?Cancel replaced or unneeded work with `task_cancel`\./g, spawnPreamble);
+  const custom = /^skills\/automate-(?:maintainer|team)\//.test(relative(root, path));
+  let after = custom ? preambleUpdated : edits.reduce((s, [pattern, replacement]) => s.replace(pattern, replacement), preambleUpdated);
   // Upstream links to bundled files become relative links, preserving local offline reads.
-  after = after.replace(/https:\/\/github\.com\/cursor\/plugins\/blob\/main\/pstack\/([^\s)]+)(?=\))/g, (url, target) => {
+  if (!custom) after = after.replace(/https:\/\/github\.com\/cursor\/plugins\/blob\/main\/pstack\/([^\s)]+)(?=\))/g, (url, target) => {
     const [file, anchor = ''] = target.split('#');
     return existsSync(join(root, file)) ? relative(dirname(path), join(root, file)) + (anchor ? '#' + anchor : '') : url;
   });
