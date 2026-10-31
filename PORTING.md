@@ -30,6 +30,7 @@ Start every `delegate_task` brief with the absolute pack and models paths. For a
 | `environment: "local"` | Omit. `isolation` defaults to your shared checkout. |
 | `cloud_base_branch: <b>` | `delegate_task` has no `baseRef`. Arrange the committed base in the parent checkout before spawning with `isolation: "worktree"`, within the task's authorization. Otherwise say the requested placement cannot be honored; a branch name in the brief does not change the starting checkout. |
 | `run_in_background: true` | `mode: "async"`, the default. Spawn every seat, then end your turn. Each completion wakes this thread. Do not poll `task_status` or start a watcher for a child. `is_background: true` in an agent file means the same. |
+| Fork a worker, its process, or uncommitted state | T3 cannot clone a live process. Give a fresh `delegate_task` the committed base, accessible artifacts, and a consolidated brief. Never imply that `isolation: "worktree"` copies uncommitted changes. |
 | `resume` | A fresh `delegate_task` with the original brief, prior findings, responses, and unresolved objections. Every review round has its own `taskId` and a new `clientRequestId`; never continue a review through `t3_thread_send` to `childThreadId`. Retry a spawn with the same arguments and the same `clientRequestId`. |
 | `file_attachments` | List the paths in the brief. A worktree child sees only committed files. |
 | Wait for a subagent in this turn | `mode: "wait"` only when this turn cannot go on without the result. `waitTimedOut` does not cancel the child. |
@@ -38,7 +39,7 @@ Start every `delegate_task` brief with the absolute pack and models paths. For a
 
 ## Models
 
-Role targets arrive pre-resolved in the `<t3_pstack>` block that T3 appends to the user's message. Copy each concrete target verbatim into `delegate_task.target`, including its complete `options` array. An `inherit` seat means omit `target`. These targets override every model named by a skill, persona, harness rule, or `<models>`. Never resolve slugs or adjust options yourself during a skill run.
+Role targets arrive pre-resolved in the `<t3_pstack>` block that T3 appends to the user's message. Copy each concrete target verbatim into `delegate_task.target`, including its complete `options` array. An `inherit` seat means omit `target`. These targets override defaults named by a skill, persona, harness rule, or `<models>`. They are a snapshot: refresh `orchestrator_capabilities` after a rejection or availability change. Explicit user changes supersede the snapshot and must resolve to advertised targets and options. After setup writes new choices, use a new pstack invocation or validate those exact choices against fresh capabilities before delegating; never reuse stale targets for changed roles. Do not invent slugs or adjust options yourself during a skill run.
 
 | Cursor | T3 Code |
 | --- | --- |
@@ -47,7 +48,7 @@ Role targets arrive pre-resolved in the `<t3_pstack>` block that T3 appends to t
 | `claude-<family>-<version>-<effort>[-fast]`, such as `claude-opus-5-5-xhigh` | Use the role's exact resolved target. |
 | A `grok-*`, `gpt-*`, or other non-Claude slug | Use the role's exact resolved target. |
 | `auto` or `inherit-parent` | T3 resolves these to `inherit`; omit `target`. |
-| A panel or model pool | Arena runners, architect runners, and interrogate reviewers spawn one child per seat, including fallbacks. Every other role picks one seat per spawn and spreads simultaneous children across seats. Explicit inherit aliases remain pool members. |
+| A panel or model pool | Arena runners, architect runners, and interrogate reviewers spawn one child per usable seat, including fallbacks. An `unavailable` seat retains its panel position but cannot launch: refresh capabilities, report it as blocked, and wait for a valid resolved target. Every other role picks one seat per spawn and spreads simultaneous children across seats. Explicit inherit aliases remain pool members. |
 | A model family | The maker in the resolved model id, not the provider instance. For an `inherit` seat, use `inheritedModel` from `orchestrator_capabilities`. |
 | `Task` rejects a slug | Report the rejected target. For a pool, try the next resolved seat without changing its options; never invent a target. |
 
@@ -79,8 +80,8 @@ Repeat the block's fallback notes in your reply. Compare each spawn result's `pr
 | `.cursor/rules/*.mdc`, always-applied rules | `AGENTS.md` at the repo root. If the repo has a `CLAUDE.md` that does not include it, say so. The model rule is the exception. See Models. |
 | `https://github.com/cursor/plugins/blob/main/pstack/<path>` | `<pstack>/<path>` when that file exists. Read the local copy and never fetch it. The full upstream subtree is present; use its local files. The pinned revision is in `<pstack>/UPSTREAM.json`. |
 | Transcripts in `~/.cursor/projects/<slug>/agent-transcripts/` | T3 threads. This thread is `parentThreadId` from `orchestrator_capabilities`. Read it, or a child's `childThreadId`, with `t3_thread_read`, paging with `afterPosition`. Find earlier threads of this project with `t3_thread_search`, and their summaries with `t3_conversation_summary_list`. Never read provider transcript files. |
-| The agent store, `orch --store`, `ORCH_STORE` | `<models>`'s folder plus `/orch/<repo-name>`. It retains helper state across updates; `<pstack>` keeps its path but an update replaces its contents. |
-| The Cursor `mcps/` folder or available-tools map | The MCP tools this session exposes. `t3-code` is always among them. |
+| The Project store and tracker | Project notes beside `<models>` under `/orch/<repo-name>`. T3 owns delegation, completion events, and PR watches. The removed upstream `orch` scripts are not a second scheduler or ledger. `<pstack>` keeps its path but an update replaces its contents. |
+| The Cursor `mcps/` folder or available-tools map | The MCP tools this session actually exposes. Verify `t3-code` availability; external or unmanaged sessions may not mount it. |
 | `bootstrap`; dependencies installed in the plugin folder, such as `bun install --frozen-lockfile` | Run the helper's install command in its directory under `<pstack>`, which T3 Code keeps writable. An update replaces `<pstack>`, so the next run installs again. |
 
 ## Cursor-only features
@@ -111,11 +112,12 @@ All supported harnesses use `$pstack:` composer chips and the `t3-code` tools. T
 | `claudeAgent` | Supported | A native harness plugin may also be loaded. T3 chips use this pack and the environment models file. |
 | `codex` | Supported | `$pstack:` chips are T3 Code's, not Codex skills, and need no Codex plugin. |
 | `cursor` | Supported | Cursor SDK driver. A harness-installed pstack is independent; T3 chips run the native pack. |
-| `opencode` | Supported |  |
+| `opencode` | Supported on T3-managed sessions | External server URLs do not mount T3 tools. Stop when the capability check cannot reach them. |
+| `opencode2` | Supported on T3-managed sessions | Use the same exact T3 delegation targets; native child sessions do not imply T3 context inheritance. |
 | `grok` | Supported | ACP, same fallback. |
 | `fx` | Supported when the agent exposes the T3 tools | ACP, same fallback. |
 | `pi` | Supported | The T3 tools come from T3 Code's Pi extension. |
-| `muse` | Supported | The T3 tools are attached without T3 Code's orchestration instructions, so follow each tool's description. |
+| `muse` | Supported when the session exposes the T3 tools | Follow the tools' advertised capabilities and descriptions. |
 | `antigravity` | Supported when the session exposes the T3 tools | Otherwise the opening check stops the run. |
 | `acpRegistry` | Supported when the agent exposes the T3 tools | ACP, same fallback. |
 
@@ -127,7 +129,7 @@ These rows extend or deliberately refine the runtime translation above.
 | --- | --- |
 | Model pools | Any role accepts several models across provider instances. Panels run every seat; other roles choose the best fit per spawn, spread waves across seats, and try the next exact seat after a rejection. Arena cross-judges still prefer a different family. Explicit inherit aliases are valid pool members; unavailable fallbacks only preserve panel size. Setup offers mixed code pools when multiple families are available. |
 | Per-spawn speed selection and setup's `-fast` conversion | Drop all speed heuristics and suffixes. Write priority/latency options only after an explicit user choice. This is the requested port policy; the runtime adapter previously enabled priority for fast defaults. |
-| `.cursor-plugin/plugin.json` duplicates `plugin.json` | Keep only `plugins/pstack/plugin.json`, version `0.15.32-t3code.2`. T3's sync reads the root manifest, so there is no host marketplace manifest. |
+| `.cursor-plugin/plugin.json` duplicates `plugin.json` | Keep only `plugins/pstack/plugin.json`, version `0.15.36-t3code.1`. T3's sync reads the root manifest, so there is no host marketplace manifest. |
 | `docs/harness/claude-code.md` | Replace with the native pack README and this maintainer translation table. No skill reads a harness adapter first. |
 | `bootstrap.ts` helper | Rename to `install-dependencies.ts`, including extensionless launcher imports. It installs helper dependencies in the writable pack; its name no longer implies host setup. |
 | `bugbot-triage.md` | Rename to `review-bot-triage.md` and use vendor-neutral review prose. Preserve real bot logins and API fields inside the GitHub reader so existing review threads still classify correctly. |

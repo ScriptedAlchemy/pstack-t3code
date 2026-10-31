@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, rmSync, chmodSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -61,6 +61,17 @@ test('shipping pack remains codemod-idempotent', () => {
   const result = execFileSync(process.execPath, [join(scripts, 'codemod.mjs')], { encoding: 'utf8' });
   assert.match(result, /0 files changed/);
 });
+test('codemod preserves runnable helper paths while translating Markdown commands', () => fixture(({ root, skill, set, gate }) => {
+  set('Use /demo.');
+  const helper = join(root, 'plugins/pstack/helper');
+  writeFileSync(helper, '#!/bin/sh\nentry=$(dirname "$0")/demo.ts\nexec node "$entry" "$@"\n', { mode: 0o755 });
+  writeFileSync(join(root, 'plugins/pstack/demo.ts'), 'console.log("helper launched");\n');
+  writeFileSync(join(root, 'plugins/pstack/pipeline.ts'), 'import { loopCheck } from "./passes/loop-check.ts";\n');
+  execFileSync(process.execPath, [join(scripts, 'codemod.mjs'), root]);
+  assert.match(readFileSync(skill, 'utf8'), /Use \$pstack:demo\./);
+  assert.equal(execFileSync(helper, [], { encoding: 'utf8' }).trim(), 'helper launched');
+  assert.equal(gate().status, 0, gate().stderr);
+}));
 test('upstream sync three-way merges native edits and never touches custom skills or advances the pin', () => {
   const root = mkdtempSync(join(tmpdir(), 'pstack-t3-sync-'));
   const git = (...args) => execFileSync('/usr/bin/git', args, { cwd: root, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
@@ -73,6 +84,8 @@ test('upstream sync three-way merges native edits and never touches custom skill
     git('add', '.'); git('commit', '-m', 'base');
     const base = git('rev-parse', 'HEAD');
     put('pstack/skills/demo/SKILL.md', '---\nname: demo\n---\n\nUse `Task`.\nBase behavior.\nNew upstream behavior.\n');
+    put('pstack/skills/demo/run', '#!/bin/sh\nprintf "synced executable\\n"\n');
+    chmodSync(join(root, 'pstack/skills/demo/run'), 0o755);
     for (const name of ['automate-maintainer', 'automate-team']) put(`pstack/skills/${name}/SKILL.md`, 'Upstream collision.\n');
     git('add', '.'); git('commit', '-m', 'upstream change');
     const target = git('rev-parse', 'HEAD');
@@ -93,6 +106,9 @@ test('upstream sync three-way merges native edits and never touches custom skill
       assert.equal(readFileSync(join(root, 'plugins/pstack/skills/demo/SKILL.md'), 'utf8'), '---\nname: demo\n---\n\nUse `delegate_task`.\nBase behavior.\nNew upstream behavior.\n');
       for (const name of ['automate-maintainer', 'automate-team']) assert.match(readFileSync(join(root, `plugins/pstack/skills/${name}/SKILL.md`), 'utf8'), /Cursor is source data/);
       assert.equal(readFileSync(join(root, 'UPSTREAM.json'), 'utf8'), pin);
+      const helper = join(root, 'plugins/pstack/skills/demo/run');
+      assert.ok(statSync(helper).mode & 0o111);
+      assert.equal(execFileSync(helper, [], { encoding: 'utf8' }).trim(), 'synced executable');
       assert.match(result.stdout, /review by hand.*automate-maintainer/);
     } finally { rmSync(bin, { recursive: true, force: true }); }
   } finally { rmSync(root, { recursive: true, force: true }); }
