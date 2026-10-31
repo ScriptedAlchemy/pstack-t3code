@@ -18,7 +18,7 @@ const rules = [
   [/environment: ["'](?:cloud|local)|cloud_base_branch|run_in_background|is_background|file_attachments|`resume`/, 'native delegate_task lifecycle'],
   [/\.mdc\b|always-applied rule|agent-transcripts|\.claude\/projects/, 'AGENTS.md, <models>, or T3 thread tools'],
   [/Bugbot|[Cc]loud [Aa]gents?|built-in PR tool|SendToUser|update_state/, 'native review, schedule, or secret tools'],
-  [/(?<![\w./])\/loop(?![\w/.-])|Custom Mode|\bcreate-skill\b|\bbootstrap\b|\bdeslop\b|control-(?:ui|cli)\b/, 'native T3 scheduling, skills, verification'],
+  [/(?<![\w./])\/loop(?![\w/-]|\.(?:[\w.]|\/))|Custom Mode|\bcreate-skill\b|\bbootstrap\b|\bdeslop\b|control-(?:ui|cli)\b/, 'native T3 scheduling, skills, verification'],
   [/fast or standard speed|fast mode|standard speed|-fast\b|fastMode|serviceTier/i, 'no automatic speed selection'],
   [/docs\/harness|read .*adapter.*first/i, 'native skill text'],
   [/~\/\.claude\/rules|~\/\.codex\/pstack-models|~\/\.agents\/skills/, 'runtime role targets and harness-specific user skills'],

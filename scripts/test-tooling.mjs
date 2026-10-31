@@ -17,7 +17,7 @@ const fixture = run => {
   try { run({ root, skill, set, gate }); } finally { rmSync(root, { recursive: true, force: true }); }
 };
 test('native gate rejects foreign tools, fields, speed selection, stale links, and mismatched names', () => fixture(({ set, gate }) => {
-  for (const body of ['`Task`', 'AskQuestion', 'a todolist', 'generalPurpose', 'readonly: false', 'environment: "cloud"', 'cloud_base_branch', 'run_in_background', '`resume`', 'file_attachments', 'grok-4.7-xhigh', '.cursor/skills/', '~/.cursor/projects/', 'Bugbot', '/loop', 'update_state', 'watch-pr --poll', 'bootstrap', 'Custom Mode', 'create-skill', 'cursor-team-kit', '-fast', 'fastMode', 'serviceTier', '/demo', '[missing](gone.md)']) {
+  for (const body of ['`Task`', 'AskQuestion', 'a todolist', 'generalPurpose', 'readonly: false', 'environment: "cloud"', 'cloud_base_branch', 'run_in_background', '`resume`', 'file_attachments', 'grok-4.7-xhigh', '.cursor/skills/', '~/.cursor/projects/', 'Bugbot', '/loop', 'Use /loop.', 'Use /loop, then wait.', 'Use /loop: repeat.', 'Use (/loop).', 'update_state', 'watch-pr --poll', 'bootstrap', 'Custom Mode', 'create-skill', 'cursor-team-kit', '-fast', 'fastMode', 'serviceTier', '/demo', '[missing](gone.md)']) {
     set(body);
     assert.equal(gate().status, 1, body);
   }
@@ -27,7 +27,7 @@ test('native gate rejects foreign tools, fields, speed selection, stale links, a
   assert.equal(gate().status, 1);
 }));
 test('native gate accepts resolved targets, composer chips, and local links; scans extensionless helpers', () => fixture(({ root, set, gate }) => {
-  set('Use `$pstack:demo` with `delegate_task` and the role in `<t3_pstack>`. Read [self](SKILL.md).');
+  set('Use `$pstack:demo` with `delegate_task` and the role in `<t3_pstack>`. Read [self](SKILL.md). Paths: `/loop.ts`, `/loop/helper.ts`, `/loop..backup`, `/loop./helper.ts`, `./passes/loop-check.ts`, and `../loop.md`.');
   assert.equal(gate().status, 0, gate().stderr);
   writeFileSync(join(root, 'plugins/pstack/helper'), '#!/usr/bin/env node\n// Cursor integration\n');
   assert.equal(gate().status, 1);
