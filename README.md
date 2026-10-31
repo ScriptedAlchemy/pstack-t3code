@@ -1,14 +1,14 @@
 # pstack-t3code
 
-A native T3 Code port of [Lauren Tan's pstack](https://github.com/cursor/plugins/tree/99b609a72323b70204eab407c622f436e858e112/pstack): skills, playbooks, principles, and agent personas, plus the custom **automate-maintainer** and **automate-team** skills.
+A native T3 Code port of [Lauren Tan's pstack](https://github.com/cursor/plugins/tree/4dd1d05818d19792e7cd6e818f1667f95f7e1dbe/pstack): skills, playbooks, principles, and agent personas, plus the custom **automate-maintainer** and **automate-team** skills.
 
-Pinned upstream version **0.15.32**, commit `99b609a72323b70204eab407c622f436e858e112`. Native manifest version **0.15.32-t3code.2**. The pack contains all 58 upstream skills plus the two custom skills.
+Pinned upstream version **0.15.36**, commit `4dd1d05818d19792e7cd6e818f1667f95f7e1dbe`. Native manifest version **0.15.36-t3code.1**. The pack contains all 58 upstream skills plus the two custom skills.
 
 ## Use in T3 Code
 
-The pack lives in [`plugins/pstack/`](plugins/pstack/). T3 must vendor this native tree and expose its `$pstack:` composer chips. Start with `$pstack:setup-pstack`, then `$pstack:poteto-mode <task>` or `$pstack:poteto-help`. Read the [guide](plugins/pstack/docs/guide/README.md) and [complete skill list](plugins/pstack/README.md#skills).
+The pack lives in [`plugins/pstack/`](plugins/pstack/). T3 vendors this native tree and exposes its `$pstack:` composer chips. Start with `$pstack:setup-pstack`, then `$pstack:poteto-mode <task>` or `$pstack:poteto-help`. Read the [guide](plugins/pstack/docs/guide/README.md) and [complete skill list](plugins/pstack/README.md#skills).
 
-This repository publishes pack content; cloning it does not replace an installed T3 pack. The T3-side follow-up must repoint the sync source to `plugins/pstack/`, remove the injected adapter read, and update its checks to validate native content. The 17 role labels and setup default-block format remain compatible with the current parser.
+This repository publishes pack content; cloning it does not replace an installed T3 pack. T3 pins a reviewed commit from `plugins/pstack/`; updating this repository alone does not advance that installed snapshot. The 17 role labels and setup default-block format remain compatible with the current parser.
 
 T3 supplies absolute pack/models paths and resolved delegate targets in `<t3_pstack>`. Skills copy targets exactly, preserve inherited panel seats, and use `delegate_task` across harnesses. Setup stores environment-specific choices in the supplied models file. The port never chooses priority or latency options automatically.
 

@@ -49,6 +49,12 @@ while IFS=$'\t' read -r status path; do
         conflicts+=("$ours")
         echo "CONFLICT $ours"
       fi
+      mode=$(git ls-tree "$target" -- "$path" | cut -d ' ' -f1)
+      case "$mode" in
+        100755) chmod +x "$ours" ;;
+        100644) chmod -x "$ours" ;;
+        *) echo "Unsupported upstream mode $mode: $path" >&2; exit 1 ;;
+      esac
       ;;
     D)
       rm -f "$ours"

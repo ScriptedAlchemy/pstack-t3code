@@ -5,7 +5,11 @@ cd "$root"
 node scripts/check-native.mjs
 node scripts/check-parity.mjs
 node --test scripts/test-tooling.mjs
-node --test plugins/pstack/skills/statechart/scripts/test/statechart.test.mjs
+statechart=plugins/pstack/skills/statechart/scripts
+if [[ ! -d "$statechart/node_modules" ]]; then
+  (cd "$statechart" && bun install --frozen-lockfile)
+fi
+(cd "$statechart" && node --disable-warning=ExperimentalWarning --test --test-concurrency=1 --test-timeout=90000 test/*.test.ts)
 helpers=plugins/pstack/skills/poteto-mode/scripts
 if [[ ! -d "$helpers/node_modules" ]]; then
   (cd "$helpers" && bun install --frozen-lockfile)
