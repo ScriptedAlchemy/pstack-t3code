@@ -81,7 +81,7 @@
   },
   {
     "path": "README.md",
-    "text": "A native T3 Code port of [Lauren Tan's pstack](https://github.com/cursor/plugins/tree/236e5481d05cbadc315b374a5de54971858c27bb/pstack), pinned to version 0.15.36. Skills, playbooks, principles, and agent personas help you write less, higher quality code with rigorous verification and independent perspectives.",
+    "text": "A native T3 Code port of [Lauren Tan's pstack](https://github.com/cursor/plugins/tree/93b916d4a1e806507e22f4716b352fa91f2b227e/pstack), pinned to version 0.15.43. Skills, playbooks, principles, and agent personas help you write less, higher quality code with rigorous verification and independent perspectives.",
     "reason": "Attribution and link to Lauren Tan's pinned upstream source."
   },
   {

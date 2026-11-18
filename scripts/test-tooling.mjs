@@ -53,6 +53,7 @@ test('codemod applies mechanical translations and is idempotent', () => fixture(
   assert.match(result, /panels: one child per seat, including fallbacks/);
   assert.match(result, /Every other role is a pool/);
   assert.match(result, /If a pool spawn is rejected, report it and try the next seat/);
+  assert.ok(result.includes('Read <pstack>/skills/poteto-mode/worker.md before anything else.'));
   const second = execFileSync(process.execPath, [join(scripts, 'codemod.mjs'), root], { encoding: 'utf8' });
   assert.match(second, /0 files changed/);
   assert.equal(readFileSync(skill, 'utf8'), result);
@@ -92,7 +93,8 @@ test('upstream sync three-way merges native edits and never touches custom skill
     git('checkout', '--orphan', 'port'); git('rm', '-rf', '.');
     for (const script of ['sync-upstream.sh', 'codemod.mjs']) put(`scripts/${script}`, readFileSync(join(scripts, script), 'utf8'));
     put('plugins/pstack/skills/demo/SKILL.md', '---\nname: demo\n---\n\nUse `delegate_task`.\nBase behavior.\n');
-    for (const name of ['automate-maintainer', 'automate-team']) put(`plugins/pstack/skills/${name}/SKILL.md`, `---\nname: ${name}\n---\n\nCursor is source data, not a mechanical edit.\n`);
+    const customSkill = name => `---\nname: ${name}\n---\n\nUse \`delegate_task\` for every spawn. Custom rules. Cancel replaced or unneeded work with \`task_cancel\`.\n`;
+    for (const name of ['automate-maintainer', 'automate-team']) put(`plugins/pstack/skills/${name}/SKILL.md`, customSkill(name));
     const pin = JSON.stringify({ commit: base });
     put('UPSTREAM.json', pin);
     git('remote', 'add', 'upstream', 'https://github.com/cursor/plugins.git');
@@ -104,7 +106,7 @@ test('upstream sync three-way merges native edits and never touches custom skill
       const result = spawnSync('bash', ['scripts/sync-upstream.sh', target], { cwd: root, env: { ...process.env, PATH: `${bin}:${process.env.PATH}` }, encoding: 'utf8' });
       assert.equal(result.status, 0, result.stderr);
       assert.equal(readFileSync(join(root, 'plugins/pstack/skills/demo/SKILL.md'), 'utf8'), '---\nname: demo\n---\n\nUse `delegate_task`.\nBase behavior.\nNew upstream behavior.\n');
-      for (const name of ['automate-maintainer', 'automate-team']) assert.match(readFileSync(join(root, `plugins/pstack/skills/${name}/SKILL.md`), 'utf8'), /Cursor is source data/);
+      for (const name of ['automate-maintainer', 'automate-team']) assert.equal(readFileSync(join(root, `plugins/pstack/skills/${name}/SKILL.md`), 'utf8'), customSkill(name));
       assert.equal(readFileSync(join(root, 'UPSTREAM.json'), 'utf8'), pin);
       const helper = join(root, 'plugins/pstack/skills/demo/run');
       assert.ok(statSync(helper).mode & 0o111);
