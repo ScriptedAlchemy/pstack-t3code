@@ -1,8 +1,8 @@
 [
-  "feature, refactoring: grok-4.7-xhigh",
-  "bug-fix: grok-4.7-xhigh",
-  "perf-issue: grok-4.7-xhigh",
-  "hillclimb: grok-4.7-xhigh",
+  "feature, refactoring: claude-opus-5-5-xhigh",
+  "bug-fix: claude-opus-5-5-xhigh",
+  "perf-issue: claude-opus-5-5-xhigh",
+  "hillclimb: claude-opus-5-5-xhigh",
   "judgment and prose: claude-opus-5-5-xhigh",
   "hardest tasks: claude-opus-5-5-xhigh",
   "how explorer: grok-4.7-xhigh",
@@ -11,9 +11,9 @@
   "why synthesizer: claude-opus-5-5-xhigh",
   "reflect tooling: grok-4.7-xhigh",
   "reflect judgment, divergent, synthesizer: claude-opus-5-5-xhigh",
-  "arena runners: claude-opus-5-5-xhigh, grok-4.7-xhigh",
-  "arena cross-judge pool: claude-opus-5-5-xhigh, grok-4.7-xhigh",
-  "swarm workers: grok-4.7-xhigh",
+  "arena runners: claude-fable-5-2-high, claude-opus-5-5-high, gemini-4-carbon-high",
+  "arena cross-judge pool: claude-opus-5-5-high, gemini-4-carbon-high",
+  "swarm workers: claude-opus-5-5-high",
   "architect runners: claude-opus-5-5-xhigh, grok-4.7-xhigh",
-  "interrogate reviewers: claude-opus-5-5-xhigh, grok-4.7-xhigh"
+  "interrogate reviewers: claude-fable-5-2-high, claude-opus-5-5-high, gemini-4-carbon-high"
 ]

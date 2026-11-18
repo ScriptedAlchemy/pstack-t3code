@@ -18,12 +18,13 @@ T3 supplies `<t3_pstack>` with absolute `<pstack>` and `<models>` paths and exac
 
 ## Subagent fields
 
-Start every `delegate_task` brief with the absolute pack and models paths. For a persona, tell the child to read the native persona file and treat its body as its role. No adapter read is needed. When the child will spawn pstack roles, paste the relevant resolved role lines and fallback notes from `<t3_pstack>` into its brief too. Do the same for every `schedule_task` prompt. Children get only that prompt, not your conversation.
+Start each brief with the lines in the table below. For a persona, tell the child to read the native persona file and treat its body as its role. No adapter read is needed. When the child will spawn pstack roles, paste the relevant resolved role lines and fallback notes from `<t3_pstack>` into its brief too. Do the same for every `schedule_task` prompt. Children get only that prompt, not your conversation.
 
 | Cursor | T3 Code |
 | --- | --- |
+| Upstream `worker.md` kickoff | Start the delegate prompt with `Read <pstack>/skills/poteto-mode/worker.md before anything else.`, using the absolute pack path. Then give the absolute pack and models paths. The worker brief follows the operator's authorization and T3's delegation, PR watch, and schedule contracts. |
 | `subagent_type: generalPurpose` | Omit. Set `role` to the closest of `implementation`, `research`, `review`, `design`, `test`, `general`. |
-| `poteto-agent`, `comment-sicko` | The brief preamble, then `Act as the agent defined in <pstack>/agents/<name>.md; read it first and treat its body as your role. The poteto-mode skill is <pstack>/skills/poteto-mode/SKILL.md.` |
+| `poteto-agent`, `comment-sicko` | The brief preamble, then `Act as the agent defined in <pstack>/agents/<name>.md; read it and treat its body as your role. The poteto-mode skill is <pstack>/skills/poteto-mode/SKILL.md.` |
 | `readonly: true` | `role: "research"`, and the brief says "Do not edit files, commit, or push." Check `git status` after it returns. T3 Code has no read-only switch, and a narrower `runtimeMode` only makes the child wait for approvals nobody can give. |
 | `readonly: false` | Omit. Children keep the `t3-code` tools either way, so "readonly strips MCP" does not apply. |
 | `environment: "cloud"` | `isolation: "worktree"`. The checkout starts from your local `HEAD` and gets no uncommitted edits, so arrange the needed committed base before delegating, within the task's authorization. |
@@ -129,11 +130,13 @@ These rows extend or deliberately refine the runtime translation above.
 | --- | --- |
 | Model pools | Any role accepts several models across provider instances. Panels run every seat; other roles choose the best fit per spawn, spread waves across seats, and try the next exact seat after a rejection. Arena cross-judges still prefer a different family. Explicit inherit aliases are valid pool members; unavailable fallbacks only preserve panel size. Setup offers mixed code pools when multiple families are available. |
 | Per-spawn speed selection and setup's `-fast` conversion | Drop all speed heuristics and suffixes. Write priority/latency options only after an explicit user choice. This is the requested port policy; the runtime adapter previously enabled priority for fast defaults. |
-| `.cursor-plugin/plugin.json` duplicates `plugin.json` | Keep only `plugins/pstack/plugin.json`, version `0.15.36-t3code.1`. T3's sync reads the root manifest, so there is no host marketplace manifest. |
+| `.cursor-plugin/plugin.json` duplicates `plugin.json` | Keep only `plugins/pstack/plugin.json`, versioned as `<upstream-version>-t3code.<n>`. T3's sync reads the root manifest, so there is no host marketplace manifest. |
 | `docs/harness/claude-code.md` | Replace with the native pack README and this maintainer translation table. No skill reads a harness adapter first. |
 | `bootstrap.ts` helper | Rename to `install-dependencies.ts`, including extensionless launcher imports. It installs helper dependencies in the writable pack; its name no longer implies host setup. |
 | `bugbot-triage.md` | Rename to `review-bot-triage.md` and use vendor-neutral review prose. Preserve real bot logins and API fields inside the GitHub reader so existing review threads still classify correctly. |
 | Shell worktree audit reads host transcript folders | Remove provider-file reads. Mark thread activity unknown, require T3 thread review, and never classify an otherwise merged worktree as automatically safe. A shell script cannot read the session's T3 tools. |
+| Upstream retires roles, caps effort at `xhigh`, and migrates old defaults | Retain the 17 native labels and four advertised-option budgets. Adopt the new upstream seeds for shared roles without speed suffixes. Existing working seats stay selected unless the user requests a change. |
+| Upstream removes Orchestrate and the plan checker | Keep the native event-driven Orchestrate playbook and the native multi-phase template with its checker. |
 | Multi-phase templates read `origin/main:pstack/...` | Read immutable runtime pack paths for bundled playbooks and project paths for project skills. The target project need not vendor pstack or use this repository's layout. |
 | Benny uses a host plugin setting and an automation-editor handoff | Use the supplied pack, T3 scheduled tasks, and a configured Slack event relay or an explicitly selected interval. T3 does not supply an automatic Slack event subscription. Preserve immutable thread coordinates, trusted markers, and disabled-until-tested setup. |
 | make-bot-ui's provider-specific webhook headers and credential panel | Use returned T3 webhook URLs, signature configuration, and `request_secret`. Never invent a bearer-header contract for a URL-token-only endpoint. |
